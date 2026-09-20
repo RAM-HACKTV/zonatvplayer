@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>REPRODUCTOR DE EVENTOS X1</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      background: #0a0e17;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Inter', sans-serif;
+    }
+    #videoPlayer {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    #videoPlayer iframe,
+    #videoPlayer video {
+      width: 100%;
+      height: 90%;
+      border: none;
+      background: #000;
+    }
+    #logo {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      width: 60px;
+      z-index: 10;
+      cursor: pointer;
+    }
+    .error-container {
+      color: #ff6b6b;
+      text-align: center;
+      padding: 20px;
+    }
+    .error-container h2 {
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+    }
+    .error-container a {
+      color: #00f0ff;
+      text-decoration: underline;
+      font-weight: bold;
+    }
+    .error-container .btn {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 10px 25px;
+      background: #00f0ff;
+      color: #000;
+      border-radius: 6px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .error-container .btn:hover {
+      background: #9d00ff;
+      color: #fff;
+    }
+    @media (max-width: 600px) {
+      #logo { width: 45px; }
+      .error-container h2 { font-size: 1.4rem; }
+    }
+  </style>
+  
+  
+<script src="https://graduateamazingly.com/5a/5b/14/5a5b1499d639b6ffdc7032792028cba1.js"></script>  
+  
+  
+  
+  
+  
+</head>
+<body>
+
+  <div id="videoPlayer">
+    <!-- Logo / enlace de ayuda -->
+    <a href="https://t.me/+9Dl05_RJzTViYTUx" target="_blank" rel="noopener">
+      <img alt="Logo" id="logo" src="https://i.imgur.com/4oRZ3jy.png">
+    </a>
+  </div>
+
+  <!-- ============ REPRODUCTOR ============ -->
+  <script>
+    (function () {
+      const container = document.getElementById('videoPlayer');
+      if (!container) return;
+
+      // Obtener la URL del parámetro 'get'
+      const params = new URLSearchParams(window.location.search);
+      const url = params.get('get');
+
+      // Si no hay URL, mostrar error
+      if (!url) {
+        container.innerHTML = `
+          <div class="error-container">
+            <h2>⚠️ ERROR...</h2>
+            <p>TRANSMISIÓN..NO DISPONIBLE.</p>
+          </div>
+        `;
+        return;
+      }
+
+      // Detectar si la URL es un archivo de video directo
+      const isVideoFile = /\.(mp4|m3u8|webm|ogg|mkv|avi|mov)(\?.*)?$/i.test(url);
+
+      if (isVideoFile) {
+        // Reproductor nativo <video>
+        const video = document.createElement('video');
+        video.src = url;
+        video.controls = true;
+        video.autoplay = true;
+        video.playsInline = true;
+        video.setAttribute('playsinline', '');
+        video.setAttribute('webkit-playsinline', '');
+        video.style.cssText = 'width:100%;height:90%;background:#000;';
+        container.appendChild(video);
+
+        video.onerror = function () {
+          container.innerHTML = `
+            <div class="error-container">
+              <h2>❌ ERROR..TRANSMISIÓN..NO DISPONIBLE.</h2>
+            </div>
+          `;
+        };
+      } else {
+        // Iframe (páginas, streams embebidos, etc.)
+        const iframe = document.createElement('iframe');
+        iframe.src = url;
+        iframe.allow = "autoplay; encrypted-media; fullscreen; picture-in-picture";
+        iframe.allowFullscreen = true;
+        iframe.setAttribute('allowfullscreen', '');
+        iframe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
+        iframe.style.cssText = 'width:100%;height:90%;border:none;background:#000;';
+        container.appendChild(iframe);
+
+        let loaded = false;
+        iframe.onload = function () { loaded = true; };
+
+        setTimeout(function () {
+          if (!loaded) {
+            container.innerHTML = `
+              <div class="error-container">
+                <h2>⏳ ERROR..TRANSMISIÓN..NO DISPONIBLE.</h2>
+              </div>
+            `;
+          }
+        }, 8000);
+
+        iframe.onerror = function () {
+          container.innerHTML = `
+            <div class="error-container">
+              <h2>❌ ERROR..TRANSMISIÓN..NO DISPONIBLE.</h2>
+            </div>
+          `;
+        };
+      }
+    })();
+  </script>
+
+  <!-- ============ DETECCIÓN ADBLOCK / DNS (NO destructiva) ============ -->
+  <script>
+    (function () {
+      let overlayMostrado = false;
+
+      function mostrarOverlay() {
+        if (overlayMostrado) return;
+        overlayMostrado = true;
+
+        // Si ya existe un overlay, no crear otro
+        if (document.getElementById('adblockOverlay')) return;
+
+        const overlay = document.createElement('div');
+        overlay.id = 'adblockOverlay';
+        overlay.style.cssText = `
+          position: fixed;
+          top: 0; left: 0;
+          width: 100%; height: 100%;
+          background: #111;
+          color: #fff;
+          z-index: 99999;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 20px;
+          text-align: center;
+        `;
+        overlay.innerHTML = `
+          <h2>🚫 Lo sentimos...</h2>
+          <p>Detectamos que estás utilizando un bloqueador de anuncios o DNS que impide que carguemos nuestro contenido.</p>
+          <p>Por favor, desactívalo para poder acceder.</p>
+          <br>
+          <button onclick="location.reload()" style="
+            background: #e63946;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+          ">Reintentar</button>
+        `;
+        document.body.appendChild(overlay);
+      }
+
+      // --- 1. Bait para detectar AdBlock ---
+      try {
+        const bait = document.createElement('div');
+        bait.className = 'adsbox ad-banner pub_300x250';
+        bait.style.cssText = 'position:absolute;left:-999px;top:-999px;height:10px;width:10px;';
+        bait.innerHTML = '&nbsp;';
+        document.body.appendChild(bait);
+
+        setTimeout(function () {
+          const blocked =
+            bait.offsetHeight === 0 ||
+            bait.offsetWidth === 0 ||
+            bait.clientHeight === 0;
+          if (bait.parentNode) bait.remove();
+          if (blocked) mostrarOverlay();
+        }, 200);
+      } catch (e) {
+        // Si falla la detección, no bloqueamos la página
+      }
+    })();
+  </script>
+
+  <!-- ============ FUNCIONES AUXILIARES (con guardas) ============ -->
+  <script>
+    // Helpers seguros
+    function _hide(id) {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    }
+    function _show(id, display) {
+      const el = document.getElementById(id);
+      if (el) el.style.display = display || 'block';
+    }
+
+    function iniciarProceso() {
+      // URL cambiada a HTTPS para evitar bloqueo de mixed-content en GitHub Pages
+      const url = "https://sf0d1k20if8.iqku3h9qvdhkt.fyi/uf6tYzIVd2tkd/StUzS9MSVpvVroGjdDICq7Kw9RpFOl7oEFp0bbY1Ht6aORxi1RfSUeFJtJaQx3dXr8yTr6f.php";
+
+      const win = window.open(url, '_blank', 'noopener');
+      if (!win) {
+        window.location.href = url;
+      }
+
+      // Ocultar imagen y anuncio si existen
+      _hide('activationImage');
+      const adContainer = document.querySelector('.ad-container');
+      if (adContainer) adContainer.style.display = 'none';
+
+      // Mostrar botón "YA COMPLETÉ" si existe
+      _show('verificacionBox', 'block');
+    }
+
+    function confirmarPaso() {
+      _hide('verificacionBox');
+      if (typeof startCountdown === 'function') {
+        startCountdown();
+      }
+    }
+
+    function activarConFetch() {
+      // En GitHub Pages (hosting estático) el POST no se procesa,
+      // así que finalizamos directamente sin esperar al servidor.
+      _hide('step1');
+      _show('finalResult', 'block');
+      _show('activatedBox', 'block');
+      _show('pinBox', 'block');
+    }
+  </script>
+
+  <!-- ============ OPCIONAL: bloqueo de DevTools ============ -->
+  <script disable-devtool-auto src="https://cdn.jsdelivr.net/npm/disable-devtool"></script>
+
+</body>
+</html>
